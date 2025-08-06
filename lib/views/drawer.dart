@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:kardoon/providers/DrawerProvider.dart';
 import 'package:kardoon/providers/EditUserProvider.dart';
 import 'package:kardoon/providers/hiveProvider.dart';
+import 'package:kardoon/providers/theme_provider.dart';
 import 'package:kardoon/views/EditUserForm.dart';
 import 'package:provider/provider.dart';
 
@@ -103,6 +104,26 @@ class HomeDrawer extends StatelessWidget {
                     ],
                   ),
                 ),
+              ),
+              Consumer<ThemeProvider>(
+                builder: (context, themeProvider, child) {
+                  return SwitchListTile(
+                    title: Text(
+                      'حالت تاریک',
+                      style: TextStyle(
+                        color: Theme.of(context).secondaryHeaderColor,
+                      ),
+                    ),
+                    value: themeProvider.themeMode == ThemeMode.dark,
+                    onChanged: (value) {
+                      themeProvider.toggleTheme(value);
+                    },
+                    secondary: Icon(
+                      Icons.dark_mode_rounded,
+                      color: Theme.of(context).secondaryHeaderColor,
+                    ),
+                  );
+                },
               ),
               ListTile(
                 onTap: () async => context.read<HiveProvider>().logOut(context),

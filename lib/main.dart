@@ -7,6 +7,7 @@ import 'package:kardoon/providers/accountProvider.dart';
 import 'package:kardoon/providers/hiveProvider.dart';
 import 'package:kardoon/providers/scheduleItemProvider.dart';
 import 'package:kardoon/providers/testProvider.dart';
+import 'package:kardoon/providers/theme_provider.dart';
 import 'package:kardoon/views/account.dart';
 import 'package:kardoon/views/home.dart';
 import 'package:provider/provider.dart';
@@ -24,6 +25,7 @@ List tasks = [];
 
 preStart() async {
   var box = await Hive.openBox('userInfo');
+  await Hive.openBox('themeBox');
   box.clear();
   bool online = await Connectivity().checkConnection();
   if (await box.get('user') != null && box.get('pass') != null){
@@ -46,6 +48,7 @@ Future main() async{
   runApp(
     MultiProvider(
       providers: [
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProvider(create: (_)=> taskItemsProvider()),
         ChangeNotifierProvider(create: (_)=> WeekBtnProvider()),
         ChangeNotifierProvider(create: (_)=> ScheduleProvider()),
@@ -79,63 +82,25 @@ class _MyAppState extends State<MyApp> {
       systemNavigationBarDividerColor: Colors.transparent,
     ));
 
-    return MaterialApp(
-      theme: ThemeData(
-        useMaterial3: true,
-        brightness: Brightness.light,
-        fontFamily: 'IranYekan',
-        visualDensity: VisualDensity.standard,
-        backgroundColor: const Color(0xFFFAF9FE), // Main BG
-        primaryColor: const Color(0xFF2F49D1), // Main Blue
-        secondaryHeaderColor: const Color(0xFF051956), // Main Texts DarkBlue
-        canvasColor: const Color(0xFFEBF3FE), // Details BG
-        cardColor: Colors.white, // Task Items BG
-        colorScheme: const ColorScheme(
-          brightness: Brightness.light,
-          primary: Color(0xFF4C4C4C), // Task title
-          onPrimary: Colors.transparent,
-          secondary: Color(0xFF847B84), // Task time
-          onSecondary: Colors.transparent,
-          error: Colors.transparent,
-          onError: Colors.transparent,
-          background: Colors.red,
-          onBackground: Colors.transparent,
-          surface: Colors.transparent,
-          onSurface: Color(0xFF051956),
-        ),
+    return Consumer<ThemeProvider>(builder: (context, themeProvider, child) {
+      return MaterialApp(
+        theme: ThemeProvider.lightTheme,
+        darkTheme: ThemeProvider.darkTheme,
+        themeMode: themeProvider.themeMode,
 
-        timePickerTheme: const TimePickerThemeData(
-          backgroundColor: Color(0xFFFAF9FE),
-          dayPeriodTextColor: Color(0xFF051956),
-        ),
+        // localizationsDelegates: const [
+        //   GlobalCupertinoLocalizations.delegate,
+        //   GlobalMaterialLocalizations.delegate,
+        //   GlobalWidgetsLocalizations.delegate,
+        // ],
+        // supportedLocales: const [
+        //   Locale("fa", "IR"), // OR Locale('ar', 'AE') OR Other RTL locales
+        // ],
+        // locale: Locale("fa", "IR"), // OR Locale('ar', 'AE') OR Other RTL locales,
 
-        tabBarTheme: const TabBarTheme(
-          indicatorSize: TabBarIndicatorSize.label,
-          overlayColor: MaterialStatePropertyAll(Colors.transparent),
-          indicator: BoxDecoration(
-            shape: BoxShape.rectangle,
-            borderRadius: BorderRadius.all(Radius.circular(12.0)),
-            color: Color(0xFF2F49D1),
-          ),
-          labelColor: Colors.white,
-          unselectedLabelColor: Color(0xFF2F49D1),
-        ),
-      ),
-      themeMode: ThemeMode.light,
-
-
-      // localizationsDelegates: const [
-      //   GlobalCupertinoLocalizations.delegate,
-      //   GlobalMaterialLocalizations.delegate,
-      //   GlobalWidgetsLocalizations.delegate,
-      // ],
-      // supportedLocales: const [
-      //   Locale("fa", "IR"), // OR Locale('ar', 'AE') OR Other RTL locales
-      // ],
-      // locale: Locale("fa", "IR"), // OR Locale('ar', 'AE') OR Other RTL locales,
-
-      home: _home,
-    );
+        home: _home,
+      );
+    });
   }
 
   @override
